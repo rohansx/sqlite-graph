@@ -116,9 +116,7 @@ impl Storage {
              FROM entities WHERE id = ?1",
         )?;
 
-        let result = stmt
-            .query_row(params![id], map_entity_row)
-            .optional()?;
+        let result = stmt.query_row(params![id], map_entity_row).optional()?;
 
         Ok(result)
     }
@@ -129,9 +127,7 @@ impl Storage {
              FROM entities WHERE name = ?1",
         )?;
 
-        let result = stmt
-            .query_row(params![name], map_entity_row)
-            .optional()?;
+        let result = stmt.query_row(params![name], map_entity_row).optional()?;
 
         Ok(result)
     }
@@ -485,8 +481,7 @@ impl Storage {
 
         let n = entity_ids.len();
         let source_placeholders: Vec<String> = (1..=n).map(|i| format!("?{i}")).collect();
-        let target_placeholders: Vec<String> =
-            (n + 1..=2 * n).map(|i| format!("?{i}")).collect();
+        let target_placeholders: Vec<String> = (n + 1..=2 * n).map(|i| format!("?{i}")).collect();
         let source_clause = source_placeholders.join(", ");
         let target_clause = target_placeholders.join(", ");
         let valid_clause = if current_only {

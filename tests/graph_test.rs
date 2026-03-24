@@ -132,7 +132,9 @@ fn test_embeddings_and_rrf() {
 
     // Fused search (will use FTS5 + semantic)
     let query_emb = vec![0.1, 0.2, 0.3, 0.4];
-    let results = graph.search_fused("machine learning", &query_emb, 10).unwrap();
+    let results = graph
+        .search_fused("machine learning", &query_emb, 10)
+        .unwrap();
     assert_eq!(results.len(), 1);
 }
 
@@ -151,8 +153,12 @@ fn test_entity_context() {
     graph.add_entity(auth).unwrap();
     graph.add_entity(billing).unwrap();
 
-    graph.add_edge(Edge::new(&center_id, &auth_id, "routes_to")).unwrap();
-    graph.add_edge(Edge::new(&center_id, &billing_id, "routes_to")).unwrap();
+    graph
+        .add_edge(Edge::new(&center_id, &auth_id, "routes_to"))
+        .unwrap();
+    graph
+        .add_edge(Edge::new(&center_id, &billing_id, "routes_to"))
+        .unwrap();
 
     let ctx = graph.get_entity_context(&center_id).unwrap();
     assert_eq!(ctx.entity.name, "API Gateway");

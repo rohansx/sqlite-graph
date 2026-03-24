@@ -2,6 +2,7 @@
 name = "sqlite-graph"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85"
 license = "MIT"
 repository = "https://github.com/rohansx/sqlite-graph"
 description = "An embeddable graph database built on SQLite — recursive CTEs, bi-temporal edges, FTS5 search, and vector fusion in a single file"

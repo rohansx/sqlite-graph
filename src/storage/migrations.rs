@@ -2,10 +2,9 @@ use rusqlite::Connection;
 
 use crate::error::Result;
 
-const MIGRATIONS: &[(&str, &str)] = &[
-    (
-        "001_initial",
-        r#"
+const MIGRATIONS: &[(&str, &str)] = &[(
+    "001_initial",
+    r#"
     -- Episodes: raw events
     CREATE TABLE IF NOT EXISTS episodes (
         id          TEXT PRIMARY KEY,
@@ -146,8 +145,7 @@ const MIGRATIONS: &[(&str, &str)] = &[
         VALUES (new.rowid, new.fact, new.relation);
     END;
     "#,
-    ),
-];
+)];
 
 pub fn run_migrations(conn: &Connection) -> Result<()> {
     conn.execute_batch(

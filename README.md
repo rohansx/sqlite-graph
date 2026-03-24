@@ -1,5 +1,10 @@
 # sqlite-graph
 
+[![CI](https://github.com/rohansx/sqlite-graph/actions/workflows/ci.yml/badge.svg)](https://github.com/rohansx/sqlite-graph/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/sqlite-graph.svg)](https://crates.io/crates/sqlite-graph)
+[![docs.rs](https://docs.rs/sqlite-graph/badge.svg)](https://docs.rs/sqlite-graph)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 An embeddable graph database built entirely on SQLite. Recursive CTEs for traversal, bi-temporal edges, FTS5 full-text search, and vector fusion — in a single file.
 
 No Docker. No JVM. No network hop. No `docker-compose.yml` you'll fight with for an hour.
@@ -38,10 +43,14 @@ The core insight: a graph database is really two things — a storage format for
 
 ## Install
 
+Add to your `Cargo.toml`:
+
 ```toml
 [dependencies]
 sqlite-graph = "0.1"
 ```
+
+**Requirements:** Rust 1.85+ (edition 2024). SQLite is bundled via `rusqlite` — no system SQLite required.
 
 ## Features
 
@@ -198,7 +207,7 @@ episodes          -- raw events (decisions, messages, incidents)
 entities          -- graph nodes (people, services, technologies)
 edges             -- relationships (bi-temporal, with confidence scores)
 episode_entities  -- junction: which entities appear in which episodes
-aliases           -- deduplication: alias_name → canonical_id
+aliases           -- deduplication: alias_name -> canonical_id
 communities       -- clustering (reserved for community detection)
 _migrations       -- schema versioning
 
@@ -330,6 +339,114 @@ Designed for graphs up to ~100K nodes. Single-digit milliseconds for traversal a
 - **Distributed systems** — SQLite doesn't replicate or shard
 
 The schema maps directly to labeled property graphs — export to JSON and import into Neo4j, Memgraph, or DGraph when you outgrow this.
+
+## Development
+
+### Prerequisites
+
+- [Rust](https://rustup.rs/) 1.85+ (edition 2024)
+- No other dependencies — SQLite is bundled via `rusqlite`
+
+### Setup
+
+```bash
+git clone https://github.com/rohansx/sqlite-graph.git
+cd sqlite-graph
+cargo build
+```
+
+### Running tests
+
+```bash
+# Run all tests
+cargo test
+
+# Run a specific test
+cargo test test_fts5_search
+
+# Run with output
+cargo test -- --nocapture
+```
+
+### Full CI check (locally)
+
+Run the same checks that CI runs on every PR:
+
+```bash
+# Format check
+cargo fmt --all -- --check
+
+# Lint
+cargo clippy -- -D warnings
+
+# Test
+cargo test --all-features
+```
+
+Or all at once:
+
+```bash
+cargo fmt --all -- --check && cargo clippy -- -D warnings && cargo test --all-features
+```
+
+### Project structure
+
+```
+sqlite-graph/
+├── src/
+│   ├── lib.rs              # Public API, re-exports
+│   ├── error.rs            # Error types
+│   ├── types.rs            # Episode, Entity, Edge, builders
+│   ├── graph.rs            # Graph struct — main API, RRF fusion, cosine similarity
+│   └── storage/
+│       ├── mod.rs           # Storage re-export
+│       ├── migrations.rs    # Schema: 7 tables, 3 FTS5, 8 indexes, 9 triggers
+│       └── sqlite.rs        # All SQL operations, recursive CTE traversal
+├── tests/
+│   └── graph_test.rs        # Integration tests (7 tests)
+├── .github/
+│   └── workflows/
+│       ├── ci.yml           # fmt + clippy + test on push/PR
+│       └── release.yml      # Publish to crates.io + GitHub Release on tag
+├── Cargo.toml
+├── LICENSE                  # MIT
+└── README.md
+```
+
+### CI/CD
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **CI** (`ci.yml`) | Push to `main`, PRs | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test --all-features` |
+| **Release** (`release.yml`) | Tag push (`v*`) | Runs tests, publishes to crates.io, creates GitHub Release with auto-generated notes |
+
+### Releasing a new version
+
+```bash
+# 1. Bump version in Cargo.toml
+# 2. Commit
+git add Cargo.toml
+git commit -m "chore: bump v0.2.0"
+
+# 3. Tag and push — CI handles the rest
+git tag v0.2.0
+git push origin main --tags
+```
+
+The release workflow will:
+1. Run the full test suite
+2. Publish to [crates.io](https://crates.io/crates/sqlite-graph)
+3. Create a [GitHub Release](https://github.com/rohansx/sqlite-graph/releases) with auto-generated release notes
+
+**Note:** Requires `CARGO_REGISTRY_TOKEN` secret in GitHub repo settings (Settings > Secrets and variables > Actions).
+
+## Contributing
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Make sure all checks pass: `cargo fmt --all -- --check && cargo clippy -- -D warnings && cargo test --all-features`
+4. Commit with [conventional commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, etc.)
+5. Open a PR against `main`
 
 ## Extracted from
 
